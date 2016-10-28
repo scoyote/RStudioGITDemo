@@ -14,28 +14,7 @@ createDataFrame <- function(r) {
 }
 
 
-uploadCAScsv <- function(session.p, caslib.p, filename, filepath,usr,pwd){
-  
-  # Specify action parameters
-  params <- paste('{"casout": {"',caslib.p,'": "casuser", "name":"', filename,'"}, "importOptions": {"fileType": "CSV"} }',sep='')
-  #print(params)
-  
-  r <- PUT(paste(hostname, 'cas', 'sessions', session.p, 'actions', 'table.upload', sep='/'),
-           body=upload_file(paste(filepath,filename,'.csv',sep='')),
-           authenticate(usr,pwd),
-           add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream')
-  )
-  return(r)
-}
 
-
-getTableInfo <- function(session.p,caslib.p){
-  x <- content(callAction(session.p, 'table.tableInfo', list(caslib=caslib.p)))
-  keepers <- which(names(unlist(x$results$TableInfo$schema))=='name') 
-  res <- data.frame(t(apply(t(x$results$TableInfo$rows),2,FUN=unlist)))
-  colnames(res) <- c(t(unlist(x$results$TableInfo$schema)[keepers]))
-  return(res)
-}
 
 # Helper function for calling CAS actions
 callAction <- function(session, action, params, debug=FALSE) {
@@ -55,3 +34,70 @@ callAction <- function(session, action, params, debug=FALSE) {
   #    print(proc.time() - start)
   return(r)
 }
+
+#not sure this one is necessary now, but leaving it for the time being - STC
+uploadCAScsv <- function(session.p, caslib.p, filename, filepath,usr,pwd){
+  
+  # Specify action parameters
+  params <- paste('{"casout": {"',caslib.p,'": "casuser", "name":"', filename,'"}, "importOptions": {"fileType": "CSV"} }',sep='')
+  #print(params)
+  
+  r <- PUT(paste(hostname, 'cas', 'sessions', session.p, 'actions', 'table.upload', sep='/'),
+           body=upload_file(paste(filepath,filename,'.csv',sep='')),
+           authenticate(usr,pwd),
+           add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream')
+  )
+  return(r)
+}
+
+#brevity - could be abstracted further - you are going to see a trend here
+getTableInfo <- function(session.p,caslib.p){
+  x <- content(callAction(session.p, 'table.tableInfo', list(caslib=caslib.p)))
+  keepers <- which(names(unlist(x$results$TableInfo$schema))=='name') 
+  res <- data.frame(t(apply(t(x$results$TableInfo$rows),2,FUN=unlist)))
+  colnames(res) <- c(t(unlist(x$results$TableInfo$schema)[keepers]))
+  return(res)
+}
+
+getColumnInfo <- function(session.p,tabnam){
+  x <- content(callAction(session.p, 'table.ColumnInfo', list(table=tabnam)))
+  keepers <- which(names(unlist(x$results$ColumnInfo$schema))=='name') 
+  res <- data.frame(t(apply(t(x$results$ColumnInfo$rows),2,FUN=unlist)))
+  colnames(res) <- c(t(unlist(x$results$ColumnInfo$schema)[keepers]))
+  return(res)
+}
+
+#format helpers - these can be abstracted further, but I am stopping with this for now
+getParameterEstimates <- function(x){ 
+  keepers <- which(names(unlist(x$results$ParameterEstimates$schema))=='name') 
+  res <- data.frame(t(apply(t(x$results$ParameterEstimates$rows),2,FUN=unlist)))
+  colnames(res) <- c(t(unlist(x$results$ParameterEstimates$schema)[keepers]))
+  return(res)
+}
+getParameterEstimatesClass <- function(x){
+  keepers <- which(names(unlist(x$results$ParameterEstimates$schema))=='name') 
+  ress <- apply(t(x$results$ParameterEstimates$rows),2,FUN=unlist)
+  for(i in 1:length(ress)){
+    ress[[i]] <- ress[[i]][1:8]
+  }
+  res <- t(data.frame(ress))
+  row.names(res) <- NULL
+  colnames(res) <- c(t(unlist(x$results$ParameterEstimates$schema)[keepers]))
+  return(res)
+}
+
+
+getModelInfo <- function(x){ 
+  keepers <- which(names(unlist(x$results$ModelInfo$schema))=='name') 
+  res <- data.frame(t(apply(t(x$results$ModelInfo$rows),2,FUN=unlist)))
+  colnames(res) <- c(t(unlist(x$results$ModelInfo$schema)[keepers]))
+  return(res)
+}
+
+getFitStatistics <- function(x){ 
+  keepers <- which(names(unlist(x$results$FitStatistics$schema))=='name') 
+  res <- data.frame(t(apply(t(x$results$FitStatistics$rows),2,FUN=unlist)))
+  colnames(res) <- c(t(unlist(x$results$FitStatistics$schema)[keepers]))
+  return(res)
+}
+
