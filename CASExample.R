@@ -28,6 +28,9 @@ uploadCAScsv(sess,'caslib','cloud-pricing','C:\\Users\\sacrok\\OneDrive\\SAS\\Ju
 
 getTableInfo(sess, 'CASUSER')
 
+content(callAction(sess,'table.dropTable',list(caslib='CASUSER', name='CLOUD-PRICING')))
+
+getTableInfo(sess, 'CASUSER')
 
 
 # THIS IS A TEST BLOCK - DELETE WHEN ALL DONE Specify action parameters

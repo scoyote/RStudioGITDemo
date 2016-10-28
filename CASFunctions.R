@@ -37,9 +37,6 @@ getTableInfo <- function(session.p,caslib.p){
   return(res)
 }
 
-
-
-
 # Helper function for calling CAS actions
 callAction <- function(session, action, params, debug=FALSE) {
   #    start <- proc.time()
