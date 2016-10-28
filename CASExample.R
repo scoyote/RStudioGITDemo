@@ -1,5 +1,6 @@
 library(httr)
 library(jsonlite)
+library(reshape)
 source('CASFunctions.R')
 
 hostname <- 'racesx12103.demo.sas.com:8777'
@@ -28,22 +29,37 @@ uploadCAScsv(sess,'caslib','cloud-pricing','C:\\Users\\sacrok\\OneDrive\\SAS\\Ju
 
 getTableInfo(sess, 'CASUSER')
 
-content(callAction(sess,'table.dropTable',list(caslib='CASUSER', name='CLOUD-PRICING')))
+# Drop Table
+# content(callAction(sess,'table.dropTable',list(caslib='CASUSER', name='CLOUD-PRICING')))
+
+
 
 getTableInfo(sess, 'CASUSER')
+getColumnInfo(sess, 'CLOUD-PRICING')
+
+# Load the Regresssion Actionset
+content(callAction(sess,'loadactionset',list(actionset='regression')))
+
+#    s.regression.glm(
+#      table='analysisData',  
+#      classVars=['c1','c2','c3'], 
+#      model={ 'depVar':'y', 
+#        'effects':['c1','c2','c3','x1','x2','x3']
+#      }
+#    ) 
+
+#run the regression
+reg.fit <- content(callAction(sess,'regression.glm',list(table='CLOUD-PRICING',model=list(depvar='Price',effects=list('mem','vcpu')))))
+getParameterEstimates(reg.fit)
+getModelInfo(reg.fit)
+getFitStatistics(reg.fit)
 
 
-# THIS IS A TEST BLOCK - DELETE WHEN ALL DONE Specify action parameters
-params <- '{"casout": {"caslib": "casuser", "name": "cloud-pricing"}, "importOptions": {"fileType": "CSV"} }'
+reg2.fit <- content(callAction(sess,'regression.glm',list(table='CLOUD-PRICING',classVars=list('Provider'),model=list(depvar='Price',effects=list('Provider','mem','vcpu')))))
 
-# Store the start time
-start <- proc.time()
+#Print out the results 
+getParameterEstimatesClass(reg2.fit)
+getModelInfo(reg2.fit)
+getFitStatistics(reg2.fit)
 
-r <- PUT(paste(hostname, 'cas', 'sessions', sess, 'actions', 'table.upload', sep='/'),
-         body=upload_file('/home/viyauser/SamsViya/JupyterDemos_JW/data/cloud-pricing.csv'),
-         authenticate('viyauser','Orion123'),
-         add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream'),
-         verbose()
-)
 
-r
