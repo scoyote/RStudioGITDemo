@@ -74,6 +74,7 @@ getParameterEstimates <- function(x){
   colnames(res) <- c(t(unlist(x$results$ParameterEstimates$schema)[keepers]))
   return(res)
 }
+
 getParameterEstimatesClass <- function(x){
   keepers <- which(names(unlist(x$results$ParameterEstimates$schema))=='name') 
   ress <- apply(t(x$results$ParameterEstimates$rows),2,FUN=unlist)

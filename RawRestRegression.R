@@ -20,28 +20,28 @@ params <- paste('{"casout": {"caslib": "casuser", "name":"', filename,'"}, "impo
 print(params)
 
 PUT(paste(hostname, 'cas', 'sessions', sess, 'actions', 'table.upload', sep='/'),
-         body=upload_file(paste(filepath,filename,'.csv',sep='')),
-         authenticate(usr,pwd),
-         add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream')
+    body=upload_file(paste(filepath,filename,'.csv',sep='')),
+    authenticate(usr,pwd),
+    add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream')
 )
 
 t.info <- POST(paste(hostname, 'cas', 'sessions', session, 'actions', action, sep='/'), 
-          body=params,
-          authenticate('viyauser','Orion123'),
-          content_type('application/json'),
-          accept_json(),
-          encode='json',
-          verbose())
+               body=params,
+               authenticate('viyauser','Orion123'),
+               content_type('application/json'),
+               accept_json(),
+               encode='json',
+               verbose())
 
 
 # Run Regression
 reg.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'regression.glm', sep='/'), 
-          body=list(table='CLOUD-PRICING',model=list(depvar='Price',effects='mem')),
-          authenticate(usr,pwd),
-          content_type('application/json'),
-          accept_json(),
-          encode='json'
-          #,verbose()
+                    body=list(table='CLOUD-PRICING',model=list(depvar='Price',effects='mem')),
+                    authenticate(usr,pwd),
+                    content_type('application/json'),
+                    accept_json(),
+                    encode='json'
+                    #,verbose()
 )
 
 
