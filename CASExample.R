@@ -4,7 +4,7 @@ library(reshape)
 source('CASFunctions.R')
 
 
-hostname <- 'racesx06067.demo.sas.com:8777'
+hostname <- 'racesx07034.demo.sas.com:8777'
 server <- 'cas-shared-default'              # CAS server name
 uri.token <- 'SASLogon/oath/token'
 uri.casManagement <- 'casManagement/servers'
@@ -21,7 +21,6 @@ sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate('
 print(sess)
 
 r <- content(callAction(sess, 'table.tableInfo', list(caslib='CASUSER')))
-t(apply(t(r$results$TableInfo$rows),2,FUN=unlist))
 
 
 uploadCAScsv(sess,'caslib','auto_policy','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\','viyauser','Orion123')
@@ -51,6 +50,7 @@ content(callAction(sess,'loadactionset',list(actionset='regression')))
 
 #run the regression
 reg.fit <- content(callAction(sess,'regression.glm',list(table='CLOUD-PRICING',model=list(depvar='Price',effects=list('mem','vcpu')))))
+
 getParameterEstimates(reg.fit)
 getModelInfo(reg.fit)
 getFitStatistics(reg.fit)

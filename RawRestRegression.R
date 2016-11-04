@@ -12,6 +12,14 @@ pwd <- 'Orion123'
 # Create new session
 sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate(usr,pwd)))$session
 
+#load the SAS actionset
+POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
+          body=list(actionset='table'),
+          authenticate('viyauser','Orion123'),
+          content_type('application/json'),
+          accept_json(),
+          encode='json',
+          verbose())
 
 # Upload file
 filepath <- 'C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\'
@@ -25,16 +33,38 @@ PUT(paste(hostname, 'cas', 'sessions', sess, 'actions', 'table.upload', sep='/')
     add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream')
 )
 
-t.info <- POST(paste(hostname, 'cas', 'sessions', session, 'actions', action, sep='/'), 
-               body=params,
-               authenticate('viyauser','Orion123'),
+# Take a look at the tables loaded into CAS
+
+t.info <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "table.tableInfo", sep='/'), 
+               body=list(caslib='CASUSER'),
+               authenticate(usr,pwd),
                content_type('application/json'),
                accept_json(),
                encode='json',
                verbose())
 
+# Format the json
+#Get the column names
+keepers <- which(names(unlist(content(t.info)$results$TableInfo$schema))=='name') 
+# create the dataframe with the rows concenring table information
+res <- data.frame(t(apply(t(content(t.info)$results$TableInfo$rows),2,FUN=unlist)))
+#apply the column names
+colnames(res) <- c(t(unlist(content(t.info)$results$TableInfo$schema)[keepers]))
+#write out the dataframe
+res
 
-# Run Regression
+
+# Simple Linear Regression
+
+#load the SAS actionset
+POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
+     body=list(actionset='regression'),
+     authenticate('viyauser','Orion123'),
+     content_type('application/json'),
+     accept_json(),
+     encode='json',
+     verbose())
+
 reg.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'regression.glm', sep='/'), 
                     body=list(table='CLOUD-PRICING',model=list(depvar='Price',effects='mem')),
                     authenticate(usr,pwd),
@@ -44,6 +74,26 @@ reg.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'regress
                     #,verbose()
 )
 
+
+#load the SAS actionset for storing
+POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "aStore", sep='/'), 
+     body=list(rstore='describe'),
+     authenticate('viyauser','Orion123'),
+     content_type('application/json'),
+     accept_json(),
+     encode='json',
+     verbose())
+
+
+
+aStore.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'aStore', sep='/'), 
+                    body=list(table='CLOUD-PRICING',model=list(depvar='Price',effects='mem')),
+                    authenticate(usr,pwd),
+                    content_type('application/json'),
+                    accept_json(),
+                    encode='json'
+                    #,verbose()
+)
 
 
 write(x = as.character(reg.results),file='reg_results.json')
