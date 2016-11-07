@@ -100,18 +100,25 @@ svm.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'svm.svm
 
 #####NNOT WORKING YET############
 #load the SAS actionset for storing
-POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "aStore", sep='/'), 
-     body=list(rstore='describe'),
+POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
+     body=list(actionSet='astore'),
      authenticate('viyauser','Orion123'),
      content_type('application/json'),
      accept_json(),
      encode='json',
      verbose())
 
+POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'astore.describe', sep='/'), 
+     body=list(rstore=list(name='SVMSave')),
+     authenticate(usr,pwd),
+     content_type('application/json'),
+     accept_json(),
+     encode='json'
+     #,verbose()
+)
 
-
-aStore.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'aStore', sep='/'), 
-                    body=list(table='CLOUD-PRICING',model=list(depvar='Price',effects='mem')),
+aStore.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'astore.score', sep='/'), 
+                    body=list(table='CLOUD-PRICING',rstore=list(name='SVMSave'),out=list(name='svmScored')),
                     authenticate(usr,pwd),
                     content_type('application/json'),
                     accept_json(),
@@ -119,5 +126,57 @@ aStore.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'aSto
                     #,verbose()
 )
 
+scored.5 <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'table.fetch', sep='/'), 
+                       body=list(table='SVMSCORED',to=5),
+                       authenticate(usr,pwd),
+                       content_type('application/json'),
+                       accept_json(),
+                       encode='json'
+                       #,verbose()
+)
+# Format the json
+keepers <- which(names(unlist(content(scored.5)$results$Fetch$schema))=='name') 
+#Get the column names
+# create the dataframe with the rows concenring table information
+res <- data.frame(t(apply(t(content(scored.5)$results$Fetch$rows),2,FUN=unlist)))
+#apply the column names
+colnames(res) <- c(t(unlist(content(scored.5)$results$Fetch$schema)[keepers]))
+#write out the dataframe
+res
 
-write(x = as.character(reg.results),file='reg_results.json')
+
+
+getColumnInfo(sess,'SVMSCORED')
+
+# Take a look at the tables loaded into CAS
+
+t.info <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "table.tableInfo", sep='/'), 
+               body=list(caslib='CASUSER'),
+               authenticate(usr,pwd),
+               content_type('application/json'),
+               accept_json(),
+               encode='json',
+               verbose())
+
+# Format the json
+#Get the column names
+keepers <- which(names(unlist(content(t.info)$results$TableInfo$schema))=='name') 
+# create the dataframe with the rows concenring table information
+res <- data.frame(t(apply(t(content(t.info)$results$TableInfo$rows),2,FUN=unlist)))
+#apply the column names
+colnames(res) <- c(t(unlist(content(t.info)$results$TableInfo$schema)[keepers]))
+#write out the dataframe
+res
+
+
+
+#write(x = as.character(reg.results),file='reg_results.json')
+
+xxs <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "actionSetInfo", sep='/'), 
+     body=list(),
+     authenticate('viyauser','Orion123'),
+     content_type('application/json'),
+     accept_json(),
+     encode='json',
+     verbose())
+
