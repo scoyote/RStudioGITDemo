@@ -98,7 +98,6 @@ svm.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'svm.svm
                     #,verbose()
 )
 
-#####NNOT WORKING YET############
 #load the SAS actionset for storing
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
      body=list(actionSet='astore'),
@@ -108,6 +107,7 @@ POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/
      encode='json',
      verbose())
 
+#take a look at the score file
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'astore.describe', sep='/'), 
      body=list(rstore=list(name='SVMSave')),
      authenticate(usr,pwd),

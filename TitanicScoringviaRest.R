@@ -95,7 +95,7 @@ POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'astore.score', sep='/'
 )
 
 scored.Titanic <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'table.fetch', sep='/'), 
-                 body=list(table='TITANIC_SCORED',to=5),
+                 body=list(table='TITANIC_SCORED',to=500),
                  authenticate(usr,pwd),
                  content_type('application/json'),
                  accept_json(),
@@ -111,4 +111,4 @@ res <- data.frame(t(apply(t(content(scored.Titanic)$results$Fetch$rows),2,FUN=un
 #apply the column names
 colnames(res) <- c(t(unlist(content(scored.Titanic)$results$Fetch$schema)[keepers]))
 #write out the dataframe
-res
+write.csv(res,file='C:\\Users\\sacrok\\OneDrive\\saskaggletitanic.csv')
