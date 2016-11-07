@@ -102,3 +102,33 @@ getFitStatistics <- function(x){
   return(res)
 }
 
+
+getSessions <- function(sess,username, passwd){
+  sessinfo <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "session.listSessions", sep='/'), 
+                   body=,
+                   authenticate(username,passwd),
+                   content_type('application/json'),
+                   accept_json(),
+                   encode='json',
+                   verbose())
+  
+  #Get the column names
+  x <- which(names(unlist(content(sessinfo)$results$Session$schema))=='name') 
+  # create the dataframe with the rows concenring table information
+  y <- data.frame(t(apply(t(content(sessinfo)$results$Session$rows),2,FUN=unlist)))
+  #apply the column names
+  colnames(y) <- c(t(unlist(content(sessinfo)$results$Session$schema)[x]))
+  #write out the dataframe
+  return(y)
+}
+
+closeSession <-  function(sess,username, passwd){
+  x<-  POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "session.endSession", sep='/'), 
+       body=,
+       authenticate(username,passwd),
+       content_type('application/json'),
+       accept_json(),
+       encode='json',
+       verbose())
+  return(x)
+}

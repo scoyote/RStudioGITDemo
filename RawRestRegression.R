@@ -146,7 +146,7 @@ res
 
 
 
-getColumnInfo(sess,'SVMSCORED')
+##getColumnInfo(sess,'SVMSCORED')
 
 # Take a look at the tables loaded into CAS
 

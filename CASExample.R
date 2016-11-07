@@ -4,7 +4,7 @@ library(reshape)
 source('CASFunctions.R')
 
 
-hostname <- 'racesx07034.demo.sas.com:8777'
+hostname <- 'racesx12101.demo.sas.com:8777'
 server <- 'cas-shared-default'              # CAS server name
 uri.token <- 'SASLogon/oath/token'
 uri.casManagement <- 'casManagement/servers'
