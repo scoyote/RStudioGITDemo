@@ -1,7 +1,7 @@
 library(httr)
 library(jsonlite)
 
-hostname <- 'racesx07034.demo.sas.com:8777'
+hostname <- 'racesx12101.demo.sas.com:8777'
 server <- 'cas-shared-default'              # CAS server name
 uri.token <- 'SASLogon/oath/token'
 uri.casManagement <- 'casManagement/servers'
@@ -75,6 +75,30 @@ reg.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'regress
 )
 
 
+
+###########################################################################################
+# SVM
+###########################################################################################
+
+#load the SAS actionset
+POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
+     body=list(actionset='svm'),
+     authenticate('viyauser','Orion123'),
+     content_type('application/json'),
+     accept_json(),
+     encode='json',
+     verbose())
+
+svm.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'svm.svmTrain', sep='/'), 
+                    body=list(table='CLOUD-PRICING',target='Provider',inputs=list('mem','Price'),savestate=list(name='SVMSave')),
+                    authenticate(usr,pwd),
+                    content_type('application/json'),
+                    accept_json(),
+                    encode='json'
+                    #,verbose()
+)
+
+#####NNOT WORKING YET############
 #load the SAS actionset for storing
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "aStore", sep='/'), 
      body=list(rstore='describe'),
