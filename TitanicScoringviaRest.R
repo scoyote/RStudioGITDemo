@@ -1,23 +1,20 @@
-library(httr)
-library(jsonlite)
-
-hostname <- 'racesx12101.demo.sas.com:8777'
-server <- 'cas-shared-default'              # CAS server name
-uri.token <- 'SASLogon/oath/token'
-uri.casManagement <- 'casManagement/servers'
-uri.casProxy <- 'casProxy/servers'
-usr <- 'viyauser'
-pwd <- 'Orion123'
-
-cas.lib <- 'ViyaScor'
 
 # Create new session
-sess_b <- content(POST(paste(hostname, 'cas', 'sessions',sep='/'), authenticate(usr,pwd)))$session
+viyauser_session <- content(POST(paste(hostname, 'cas', 'sessions',sep='/'), authenticate(viyauser,pwd)))$session
 
+
+resx <-  content(POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "builtins.userInfo", sep='/'), 
+                  body=,
+                  #authenticate('viyauser',pwd),
+                  content_type('application/json'),
+                  accept_json(),
+                  encode='json',
+                  verbose()
+))
 
 
 #look at libraries
-clibinfox <- POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "table.caslibInfo", sep='/'), 
+clibinfox <- POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "table.caslibInfo", sep='/'), 
                  body=,
                  authenticate('viyauser',pwd),
                  content_type('application/json'),
@@ -35,7 +32,7 @@ colnames(res) <- c(t(unlist(content(clibinfox)$results$CASLibInfo$schema)[keeper
 res
 
 #load the SAS actionset
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "loadactionset", sep='/'), 
+POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "loadactionset", sep='/'), 
      body=list(actionset='table'),
      authenticate('viyauser','Orion123'),
      content_type('application/json'),
@@ -43,21 +40,20 @@ POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "loadactionset", sep=
      encode='json',
      verbose())
 
+
 # Upload file
 filepath <- 'C:\\Users\\sacrok\\Documents\\RStudioGITDemo\\data\\'
 filename <- 'titanic_train'
-params <- paste('{"casout": {"caslib": "casuser", "name":"', filename,'"}, "importOptions": {"fileType": "CSV"} }',sep='')
-PUT(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'table.upload', sep='/'),
+params <- paste('{"casout": {"caslib": "TITANIC", "name":"', filename,'","promote":"True"}, "importOptions": {"fileType": "CSV"} }',sep='')
+PUT(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.upload', sep='/'),
     body=upload_file(paste(filepath,filename,'.csv',sep='')),
     authenticate(usr,pwd),
     add_headers('JSON-Parameters'=params, 'Content-Type'='binary/octet-stream')
-)
-#DELETE getColumnInfo(sess_b,'TITANIC_TRAIN')
-
+    )
 # Take a look at the tables loaded into CAS
 
-t.info <- POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "table.tableInfo", sep='/'), 
-               body=,#list(caslib='CASUSER'),
+t.info <- POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "table.tableInfo", sep='/'), 
+               body=list(caslib='TITANIC'),
                authenticate('viyauser',pwd),
                content_type('application/json'),
                accept_json(),
@@ -79,7 +75,7 @@ res
 ###########################################################################################
 
 #load the SAS actionset
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "loadactionset", sep='/'), 
+POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "loadactionset", sep='/'), 
      body=list(actionset='decisionTree'),
      authenticate('viyauser','Orion123'),
      content_type('application/json'),
@@ -87,8 +83,8 @@ POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "loadactionset", sep=
      encode='json',
      verbose())
 
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'svm.svmTrain', sep='/'), 
-                    body=list(table='TITANIC_TRAIN',target='Survived',inputs=list('Age','Sex'),nominals=list('Sex','Survived'),savestate=list(name='TitanicSVM')),
+POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'svm.svmTrain', sep='/'), 
+                    body=list(table='TITANIC_TRAIN',target='Survived',inputs=list('Age','Sex'),nominals=list('Sex','Survived'),savestate=list(name='TitanicSVM',caslib='TITANIC'),output=list(casOut=list(caslib='TITANIC',promote='True'))),
                     authenticate(usr,pwd),
                     content_type('application/json'),
                     accept_json(),
@@ -96,15 +92,18 @@ POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'svm.svmTrain', sep='
                     #,verbose
                     )
 ############
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'table.promote', sep='/'), 
-     body=list(name='TITANICSVM'),
-     authenticate('viyauser','Orion123'),
-     content_type('application/json'),
-     accept_json(),
-     encode='json',
-     verbose())
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'accessControl.isAuthorized', sep='/'), 
-     body=list(caslib='CASLIB',objType='TABLE',permission='SELECT',table='TITANICSVM'),
+
+#POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.promote', sep='/'), 
+#     body=list(name='TITANICSVM'),
+#     authenticate('viyauser','Orion123'),
+#     content_type('application/json'),
+#     accept_json(),
+#     encode='json',
+#     verbose())
+
+
+POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.save', sep='/'), 
+     body=list(name='TITANICSVMx', table=list(name="TITANICSVM")),
      authenticate('viyauser','Orion123'),
      content_type('application/json'),
      accept_json(),
@@ -113,8 +112,8 @@ POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'accessControl.isAuth
 ###########
 
 
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'astore.score', sep='/'), 
-                       body=list(table='TITANIC_TEST',rstore=list(name='TITANICSVM'),out=list(name='TITANIC_Scored')),
+POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'astore.score', sep='/'), 
+                       body=list(table=list(caslib='TITANIC',name='TITANIC_TEST'),rstore=list(name='TITANICSVM'),out=list(caslib='TITANIC',name='TITANIC_Scored',promote='True')),
                        authenticate(usr,pwd),
                        content_type('application/json'),
                        accept_json(),
@@ -122,8 +121,8 @@ POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'astore.score', sep='
                        #,verbose()
 )
 
-scored.Titanic <- POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', 'table.fetch', sep='/'), 
-                 body=list(table='TITANIC_SCORED',to=500),
+scored.Titanic <- POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.fetch', sep='/'), 
+                 body=list(table=list(caslib='TITANIC',name='TITANIC_SCORED'),to=500),
                  authenticate(usr,pwd),
                  content_type('application/json'),
                  accept_json(),
@@ -141,7 +140,7 @@ colnames(res) <- c(t(unlist(content(scored.Titanic)$results$Fetch$schema)[keeper
 #write out the dataframe
 write.csv(res,file='C:\\Users\\sacrok\\OneDrive\\saskaggletitanic.csv')
 
-POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "session.endSession", sep='/'), 
+POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "session.endSession", sep='/'), 
      body=,
      authenticate(usr,pwd),
      content_type('application/json'),

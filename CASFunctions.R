@@ -1,4 +1,4 @@
-# Define a function to extract data from the response and reform as a data frame
+bbn # Define a function to extract data from the response and reform as a data frame
 createDataFrame <- function(r) {
   # Extract columns names
   header <- lapply(content(r)$results$Fetch$schema, function(x) { x$name })
@@ -132,3 +132,21 @@ closeSession <-  function(sess,username, passwd){
        verbose())
   return(x)
 }
+
+
+
+x <- content(POST(paste(hostname, 'cas', 'sessions', sess_b, 'actions', "table.fileInfo", sep='/'), 
+                  body=list(path="%"),
+                  authenticate('viyauser',pwd),
+                  content_type('application/json'),
+                  accept_json(),
+                  encode='json',
+                  verbose()))
+#Get the column names
+keepers <- which(names(unlist(x$results$FileInfo$schema))=='name') 
+# create the dataframe with the rows concenring table information
+res <- data.frame(t(apply(t(x$results$FileInfo$rows),2,FUN=unlist)))
+#apply the column names
+colnames(res) <- c(t(unlist(x$results$FileInfo$schema)[keepers]))
+#write out the dataframe
+res
