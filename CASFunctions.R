@@ -22,7 +22,7 @@ callAction <- function(session, action, params, debug=FALSE) {
   
   r <- POST(paste(hostname, 'cas', 'sessions', session, 'actions', action, sep='/'), 
             body=params,
-            authenticate('viyauser','Orion123'),
+            authenticate(user,pass),
             content_type('application/json'),
             accept_json(),
             encode='json',
