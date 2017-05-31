@@ -4,28 +4,28 @@ library(reshape)
 source('CASFunctions.R')
 
 
-hostname <- 'racesx12101.demo.sas.com:8777'
+hostname <- 'xxx:8777'
 server <- 'cas-shared-default'              # CAS server name
 uri.token <- 'SASLogon/oath/token'
 uri.casManagement <- 'casManagement/servers'
 uri.casProxy <- 'casProxy/servers'
 # Get basic environment info
-GET(paste(hostname, 'cas', sep='/'), authenticate('viyauser','Orion123'))
+GET(paste(hostname, 'cas', sep='/'), authenticate(user,pass))
 
-r <- GET(paste(hostname, 'grid', sep='/'), authenticate('sasdemo','Orion123'))
+r <- GET(paste(hostname, 'grid', sep='/'), authenticate(user,pass))
 
 lapply(content(r), function(x) { paste(x$name, x$type, sep=' - ')})
 
 # Create a session and store the id
-sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate('viyauser','Orion123')))$session
+sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate(user,pass)))$session
 print(sess)
 
 r <- content(callAction(sess, 'table.tableInfo', list(caslib='CASUSER')))
 
 
-uploadCAScsv(sess,'caslib','auto_policy','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\','viyauser','Orion123')
-uploadCAScsv(sess,'caslib','bank-additional-full','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\','viyauser','Orion123')
-uploadCAScsv(sess,'caslib','cloud-pricing','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\','viyauser','Orion123')
+uploadCAScsv(sess,'caslib','auto_policy','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\',user,pass)
+uploadCAScsv(sess,'caslib','bank-additional-full','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\',user,pass)
+uploadCAScsv(sess,'caslib','cloud-pricing','C:\\Users\\sacrok\\OneDrive\\SAS\\JupyterDemos_JW\\data\\',user,pass)
 
 getTableInfo(sess, 'CASUSER')
 
