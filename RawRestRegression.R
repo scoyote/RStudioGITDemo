@@ -1,13 +1,13 @@
 library(httr)
 library(jsonlite)
 
-hostname <- 'racesx12101.demo.sas.com:8777'
+hostname <- 'xxx:8777'
 server <- 'cas-shared-default'              # CAS server name
 uri.token <- 'SASLogon/oath/token'
 uri.casManagement <- 'casManagement/servers'
 uri.casProxy <- 'casProxy/servers'
-usr <- 'viyauser'
-pwd <- 'Orion123'
+user <- 'xxx'
+pass <- 'xxx'
 
 # Create new session
 sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate(usr,pwd)))$session
@@ -15,7 +15,7 @@ sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate(u
 #load the SAS actionset
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
           body=list(actionset='table'),
-          authenticate('viyauser','Orion123'),
+          authenticate(user,pass),
           content_type('application/json'),
           accept_json(),
           encode='json',
@@ -59,7 +59,7 @@ res
 #load the SAS actionset
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
      body=list(actionset='regression'),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
@@ -83,7 +83,7 @@ reg.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'regress
 #load the SAS actionset
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
      body=list(actionset='svm'),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
@@ -101,7 +101,7 @@ svm.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'svm.svm
 #load the SAS actionset for storing
 POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "loadactionset", sep='/'), 
      body=list(actionSet='astore'),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
@@ -174,7 +174,7 @@ res
 
 xxs <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', "actionSetInfo", sep='/'), 
      body=list(),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
