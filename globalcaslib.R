@@ -1,9 +1,9 @@
 library(httr)
 library(jsonlite)
 
-hostname <- 'racesx07055.demo.sas.com:8777'
-usr <- 'cas'
-pwd <- 'Orion123'
+hostname <- 'xxx:8777'
+usr <- 'xxx'
+pwd <- 'xxx'
 
 # Create new session
 cas_user_session <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate('cas',pwd)))$session
