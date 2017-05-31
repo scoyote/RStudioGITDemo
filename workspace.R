@@ -1,13 +1,13 @@
 library(httr)
 library(jsonlite)
 
-hostname <- 'racesx07034.demo.sas.com:8777'
+hostname <- 'xxx:8777'
 server <- 'cas-shared-default'              # CAS server name
 uri.token <- 'SASLogon/oath/token'
 uri.casManagement <- 'casManagement/servers'
 uri.casProxy <- 'casProxy/servers'
-usr <- 'viyauser'
-pwd <- 'Orion123'
+usr <- 'xxx'
+pwd <- 'xxx'
 
 # Create new session
 sess <- content(POST(paste(hostname, 'cas', 'sessions', sep='/'), authenticate(usr,pwd)))$session
@@ -27,7 +27,7 @@ PUT(paste(hostname, 'cas', 'sessions', sess, 'actions', 'table.upload', sep='/')
 
 t.info <- POST(paste(hostname, 'cas', 'sessions', session, 'actions', action, sep='/'), 
           body=params,
-          authenticate('viyauser','Orion123'),
+          authenticate(user,pass),
           content_type('application/json'),
           accept_json(),
           encode='json',
@@ -37,7 +37,7 @@ t.info <- POST(paste(hostname, 'cas', 'sessions', session, 'actions', action, se
 # Run Regression
 reg.results <- POST(paste(hostname, 'cas', 'sessions', sess, 'actions', 'regression.glm', sep='/'), 
           body=list(table='CLOUD-PRICING',model=list(depvar='Price',effects='mem')),
-          authenticate(usr,pwd),
+          authenticate(user,pass),
           content_type('application/json'),
           accept_json(),
           encode='json'
