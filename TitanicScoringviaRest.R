@@ -34,7 +34,7 @@ res
 #load the SAS actionset
 POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "loadactionset", sep='/'), 
      body=list(actionset='table'),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
@@ -77,7 +77,7 @@ res
 #load the SAS actionset
 POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "loadactionset", sep='/'), 
      body=list(actionset='decisionTree'),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
@@ -95,7 +95,7 @@ POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'svm.svmTra
 
 #POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.promote', sep='/'), 
 #     body=list(name='TITANICSVM'),
-#     authenticate('viyauser','Orion123'),
+#     authenticate(user,pass),
 #     content_type('application/json'),
 #     accept_json(),
 #     encode='json',
@@ -104,7 +104,7 @@ POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'svm.svmTra
 
 POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.save', sep='/'), 
      body=list(name='TITANICSVMx', table=list(name="TITANICSVM")),
-     authenticate('viyauser','Orion123'),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
@@ -114,7 +114,7 @@ POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.save
 
 POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'astore.score', sep='/'), 
                        body=list(table=list(caslib='TITANIC',name='TITANIC_TEST'),rstore=list(name='TITANICSVM'),out=list(caslib='TITANIC',name='TITANIC_Scored',promote='True')),
-                       authenticate(usr,pwd),
+                       authenticate(user,pass),
                        content_type('application/json'),
                        accept_json(),
                        encode='json'
@@ -123,7 +123,7 @@ POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'astore.sco
 
 scored.Titanic <- POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', 'table.fetch', sep='/'), 
                  body=list(table=list(caslib='TITANIC',name='TITANIC_SCORED'),to=500),
-                 authenticate(usr,pwd),
+                 authenticate(user,pass),
                  content_type('application/json'),
                  accept_json(),
                  encode='json'
@@ -142,7 +142,7 @@ write.csv(res,file='C:\\Users\\sacrok\\OneDrive\\saskaggletitanic.csv')
 
 POST(paste(hostname, 'cas', 'sessions', viyauser_session, 'actions', "session.endSession", sep='/'), 
      body=,
-     authenticate(usr,pwd),
+     authenticate(user,pass),
      content_type('application/json'),
      accept_json(),
      encode='json',
