@@ -1,10 +1,10 @@
 library(httr)
 library(jsonlite)
 
-hostname <- 'racesx07055.demo.sas.com:8777'
+hostname <- 'xxx:8777'
 casusr <- 'cas'
-viyauser <- 'viyauser'
-pwd <- 'Orion123'
+viyauser <- 'xxx'
+pwd <- 'xxx'
 
 
 
